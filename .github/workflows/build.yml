@@ -4,39 +4,39 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli
+    container: qmkfm/qmk_cli
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          path: main
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        path: main
 
-      - name: Checkout Vial-QMK
-        uses: actions/checkout@v3
-        with:
-          repository: vial-kb/vial-qmk
-          submodules: recursive
-          path: vial-qmk
+    - name: Checkout Vial-QMK
+      uses: actions/checkout@v3
+      with:
+        repository: vial-kb/vial-qmk
+        submodules: recursive
+        path: vial-qmk
 
-      - name: Copy keymaps to relevant directories
-        run: |
-          cp --recursive main/crkbd vial-qmk/keyboards/crkbd/keymaps/
+    - name: Copy keymaps to relevant directories
+      run: |
+        cp --recursive main/crkbd vial-qmk/keyboards/crkbd/keymaps/
 
-      - name: Verify Vial UID is unique
-        run: |
-          cd vial-qmk
-          python3 util/ci_vial_verify_uid.py
+    - name: Verify Vial UID is unique
+      run: |
+        cd vial-qmk
+        python3 util/ci_vial_verify_uid.py
 
-      - name: Build firmware
-        run: |
-          cd vial-qmk
-          qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
-          qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
+    - name: Build firmware
+      run: |
+        cd vial-qmk
+        qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
+        qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
 
-      - name: Save firmware files
-        uses: actions/upload-artifact@v3
-        with:
-          name: firmware-files
-          path: |
-            ./vial-qmk/.build/*.hex
-            ./vial-qmk/.build/*.uf2
+    - name: Save firmware files
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware-files
+        path: |
+          ./vial-qmk/.build/*.hex
+          ./vial-qmk/.build/*.uf2
