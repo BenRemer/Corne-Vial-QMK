@@ -30,7 +30,7 @@ jobs:
     - name: Build firmware
       run: |
         cd vial-qmk
-        qmk setup
+        python3 -m pip install -r requirements.txt
         qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
         qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
 
