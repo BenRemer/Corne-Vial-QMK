@@ -23,16 +23,16 @@ else
 fi
 
 # Copy files to QMK repository
-if [ ! -L "vial-qmk/keyboards/ferris/sweep/keymaps/notatutorial" ]; then
+if [ ! -L "vial-qmk/keyboards/crkbd/keymaps/benremer" ]; then
     echo "Symlink keymaps in VIAL QMK repository"
-    ln --symbolic --force --no-dereference $(pwd)/crkbd vial-qmk/keyboards/crkbd/keymaps/
+    ln --symbolic --force --no-dereference $(pwd)/benremer vial-qmk/keyboards/crkbd/keymaps/
 fi
 
 # Build firmware
 echo "Building firmware..."
 cd vial-qmk
-qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
-qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
+qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap benremer
+# qmk compile -e MASTER=left --keyboard crkbd --keymap benremer // too large
 cd ..
 
 # Copy firmware out of build directory
