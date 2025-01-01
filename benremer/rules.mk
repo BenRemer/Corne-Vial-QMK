@@ -1,4 +1,3 @@
-SRC += source.c
 # qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap vial
 VIA_ENABLE          = yes
 VIAL_ENABLE         = yes
