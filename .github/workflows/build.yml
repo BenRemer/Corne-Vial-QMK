@@ -1,43 +1,42 @@
-name: Build QMK firmware
+name: Build Vial-QMK firmware
 on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: ghcr.io/qmk/qmk_cli
-    strategy:
-      fail-fast: false
-      matrix:
-# List of keymap json files to build
-        file:
-        - crkbd_rev1_benremer.json
-# End of json file list
-
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: main
 
-    - name: Disable git safe directory checks
-      run : git config --global --add safe.directory '*'
+      - name: Checkout Vial-QMK
+        uses: actions/checkout@v3
+        with:
+          repository: vial-kb/vial-qmk
+          submodules: recursive
+          path: vial-qmk
 
-    - name: Checkout VIAL-QMK
-      uses: actions/checkout@v3
-      with:
-        repository: vial-kb/vial-qmk
-        submodules: recursive
+      - name: Copy keymaps to relevant directories
+        run: |
+          cp --recursive main/crkbd vial-qmk/keyboards/crkbd/keymaps/
 
-    - name: Checkout userspace
-      uses: actions/checkout@v3
-      with:
-        path: users/${{ github.actor }}
+      - name: Verify Vial UID is unique
+        run: |
+          cd vial-qmk
+          python3 util/ci_vial_verify_uid.py
 
-    - name: Build firmware
-      run: qmk compile "users/${{ github.actor }}/${{ matrix.file }}"
+      - name: Build firmware
+        run: |
+          cd vial-qmk
+          qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
+          qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
 
-    - name: Archive firmware
-      uses: actions/upload-artifact@v3
-      continue-on-error: true
-      with:
-        name: ${{ matrix.file }}_${{ github.actor }}
-        path: |
-          *.hex
-          *.bin
-          *.uf2
+      - name: Save firmware files
+        uses: actions/upload-artifact@v3
+        with:
+          name: firmware-files
+          path: |
+            ./vial-qmk/.build/*.hex
+            ./vial-qmk/.build/*.uf2
