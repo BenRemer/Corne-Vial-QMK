@@ -20,7 +20,7 @@ jobs:
 
     - name: Copy keymaps to relevant directories
       run: |
-        cp --recursive main/crkbd vial-qmk/keyboards/crkbd/keymaps/
+        cp --recursive main/benremer vial-qmk/keyboards/crkbd/keymaps/
 
     - name: Verify Vial UUID
       run: |
@@ -31,8 +31,8 @@ jobs:
       run: |
         cd vial-qmk
         python3 -m pip install -r requirements.txt
-        qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
-        qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
+        qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap benremer
+        qmk compile -e MASTER=left --keyboard crkbd --keymap benremer
 
     - name: Save firmware files
       uses: actions/upload-artifact@v3
