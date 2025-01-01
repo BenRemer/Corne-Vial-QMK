@@ -20,7 +20,7 @@ jobs:
 
     - name: Copy keymaps to relevant directories
       run: |
-        cp --recursive main/keyboards vial-qmk/keyboards/
+        cp --recursive main/keyboards vial-qmk/
 
     - name: Verify Vial UUID
       run: |
