@@ -22,7 +22,7 @@ jobs:
       run: |
         cp --recursive main/crkbd vial-qmk/keyboards/crkbd/keymaps/
 
-    - name: Verify Vial UID is unique
+    - name: Verify Vial UUID
       run: |
         cd vial-qmk
         python3 util/ci_vial_verify_uid.py
@@ -30,6 +30,7 @@ jobs:
     - name: Build firmware
       run: |
         cd vial-qmk
+        qmk setup
         qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap crkbd
         qmk compile -e MASTER=left --keyboard crkbd --keymap crkbd
 
