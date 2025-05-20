@@ -32,7 +32,7 @@ jobs:
         cd vial-qmk
         python3 -m pip install -r requirements.txt
         qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap custom
-        # qmk compile -e MASTER=left --keyboard crkbd --keymap custom // too large
+        qmk compile -e MASTER=left --keyboard crkbd --keymap custom 
 
     - name: Save firmware files
       uses: actions/upload-artifact@v3
