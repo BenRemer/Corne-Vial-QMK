@@ -1,5 +1,5 @@
 # qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap vial
-VIA_ENABLE          = yes
+VIA_ENABLE          = no
 VIAL_ENABLE         = yes
 LTO_ENABLE          = yes
 QMK_SETTINGS        = no
