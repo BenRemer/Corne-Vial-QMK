@@ -11,9 +11,9 @@ SLEEP_LED_ENABLE	= no
 
 OLED_ENABLE         = yes
 COMBO_ENABLE        = no
-# WPM_ENABLE          = yes
+WPM_ENABLE          = yes
 
-WPM_ENABLE          = no
+
 MOUSEKEY_ENABLE 	= no     # Mouse keys
 EXTRAKEY_ENABLE     = no
 KEY_OVERRIDE_ENABLED = no
