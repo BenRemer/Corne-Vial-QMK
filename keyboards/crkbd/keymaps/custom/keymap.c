@@ -21,7 +21,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
        KC_TAB,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        TD(0),    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,   TD(5),
+  OSM(MOD_LSFT),    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,   TD(5),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LCTL,   TD(6),  KC_SPC,     KC_ENT,   TO(1), KC_BSPC
                                       //`--------------------------'  `--------------------------'
@@ -33,7 +33,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
        KC_TAB,  KC_DOT, LSFT(KC_3), LSFT(KC_7), KC_BSLS,  KC_PSLS,               KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT,   KC_NO,   TD(2),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-        TD(0), LSFT(KC_4), LSFT(KC_8), LSFT(KC_2), LCTL(KC_GRV), KC_EQL,         KC_LBRC, LSFT(KC_9), LSFT(KC_0), KC_RBRC, KC_NO, TD(3),
+  OSM(MOD_LSFT), LSFT(KC_4), LSFT(KC_8), LSFT(KC_2), LCTL(KC_GRV), KC_EQL,         KC_LBRC, LSFT(KC_9), LSFT(KC_0), KC_RBRC, KC_NO, TD(3),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                             TD(4),   TO(0),  KC_SPC,     KC_ENT,   TO(2), KC_BSPC
                                       //`--------------------------'  `--------------------------'
@@ -54,9 +54,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef VIAL_ENABLE
 void eeconfig_init_user(void) {
+    vial_init();
+
 #    ifdef VIAL_TAP_DANCE_ENABLE
     static const vial_tap_dance_entry_t default_tap_dances[] = {
-        { .on_tap = OSM(MOD_LSFT), .on_hold = KC_NO,   .on_double_tap = KC_NO,         .on_tap_hold = KC_LSFT, .custom_tapping_term = 100 },
+        { .on_tap = OSM(MOD_LSFT), .on_hold = KC_LSFT, .on_double_tap = KC_NO,         .on_tap_hold = KC_LSFT, .custom_tapping_term = 100 },
         { .on_tap = OSM(MOD_LCTL), .on_hold = KC_LCTL, .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 180 },
         { .on_tap = KC_PGUP,       .on_hold = KC_HOME, .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 100 },
         { .on_tap = KC_PGDN,       .on_hold = KC_END,  .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 100 },
@@ -91,8 +93,6 @@ void eeconfig_init_user(void) {
         dynamic_keymap_set_key_override(i, &ko);
     }
 #    endif
-
-    vial_init();
 }
 #endif
 
