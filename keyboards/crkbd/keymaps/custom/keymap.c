@@ -223,16 +223,6 @@ static void render_luna(int LUNA_X, int LUNA_Y) {
         }
     }
 
-#if OLED_TIMEOUT > 0
-    /* the animation prevents the normal timeout from occuring */
-    if (last_input_activity_elapsed() > OLED_TIMEOUT && last_led_activity_elapsed() > OLED_TIMEOUT) {
-        oled_off();
-        return;
-    } else {
-        oled_on();
-    }
-#endif
-
     /* animation timer */
     if (timer_elapsed32(anim_timer) > ANIM_FRAME_DURATION) {
         anim_timer = timer_read32();
@@ -375,6 +365,14 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 
 bool oled_task_user(void) {
+#if OLED_TIMEOUT > 0
+    if (last_input_activity_elapsed() > OLED_TIMEOUT && last_led_activity_elapsed() > OLED_TIMEOUT) {
+        oled_off();
+        return false;
+    } else {
+        oled_on();
+    }
+#endif
     /* KEYBOARD PET VARIABLES START */
     current_wpm   = get_current_wpm();
     led_usb_state = host_keyboard_led_state();
