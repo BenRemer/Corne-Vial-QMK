@@ -292,12 +292,12 @@ static void print_logo_narrow(void) {
     wpm_str[1] = '0' + (n /= 10) % 10;
     wpm_str[0] = '0' + n / 10;
 
-    oled_set_cursor(0, 11);
-    oled_write("corne", false);
-    oled_set_cursor(1, 13);
+    oled_set_cursor(1, 10);
     oled_write("WPM", false);
-    oled_set_cursor(1, 14);
+    oled_set_cursor(1, 11);
     oled_write(wpm_str, false);
+    oled_set_cursor(0, 14);
+    oled_write("corne", false);
 }
 
 static void print_status_narrow(void) {
