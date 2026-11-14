@@ -257,63 +257,6 @@ static const char PROGMEM icon_nums[3][24] = {
     {0x00, 0x00, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
-static const uint8_t* get_big_glyph(char c) {
-    static const uint8_t glyphs[][5] = {
-        {0x7f, 0x49, 0x49, 0x49, 0x36}, // B
-        {0x7e, 0x11, 0x11, 0x11, 0x7e}, // A
-        {0x46, 0x49, 0x49, 0x49, 0x31}, // S
-        {0x7f, 0x49, 0x49, 0x49, 0x41}, // E
-        {0x7f, 0x09, 0x09, 0x09, 0x06}, // P
-        {0x7f, 0x09, 0x19, 0x29, 0x46}, // R
-        {0x3e, 0x41, 0x41, 0x41, 0x3e}, // O
-        {0x3e, 0x41, 0x49, 0x49, 0x7a}, // G
-        {0x7f, 0x04, 0x08, 0x10, 0x7f}, // N
-        {0x3f, 0x40, 0x40, 0x40, 0x3f}, // U
-        {0x7f, 0x02, 0x0c, 0x02, 0x7f}, // M
-        {0x02, 0x01, 0x51, 0x09, 0x06}, // ?
-    };
-    switch (c) {
-        case 'B': return glyphs[0];
-        case 'A': return glyphs[1];
-        case 'S': return glyphs[2];
-        case 'E': return glyphs[3];
-        case 'P': return glyphs[4];
-        case 'R': return glyphs[5];
-        case 'O': return glyphs[6];
-        case 'G': return glyphs[7];
-        case 'N': return glyphs[8];
-        case 'U': return glyphs[9];
-        case 'M': return glyphs[10];
-        default:  return glyphs[11];
-    }
-}
-
-static void render_big_text(uint8_t start_col, const char *text) {
-    for (uint8_t i = 0; text[i] != '\0'; i++) {
-        const uint8_t *glyph = get_big_glyph(text[i]);
-        char buf[3][18] = {{0}};
-        for (uint8_t gx = 0; gx < 5; gx++) {
-            uint32_t col_bits = 0;
-            for (uint8_t gy = 0; gy < 7; gy++) {
-                if (glyph[gx] & (1 << gy)) {
-                    col_bits |= (0x7UL << (gy * 3 + 1));
-                }
-            }
-            for (uint8_t sx = 0; sx < 3; sx++) {
-                uint8_t px = gx * 3 + sx;
-                buf[0][px] = (char)(col_bits & 0xFF);
-                buf[1][px] = (char)((col_bits >> 8) & 0xFF);
-                buf[2][px] = (char)((col_bits >> 16) & 0xFF);
-            }
-        }
-        uint8_t col = start_col + i * 3;
-        for (uint8_t page = 0; page < 3; page++) {
-            oled_set_cursor(col, page);
-            oled_write_raw(buf[page], 18);
-        }
-    }
-}
-
 static void print_logo_narrow(void) {
     uint8_t layer = get_highest_layer(layer_state);
     static uint8_t last_layer = 0xFF;
@@ -341,10 +284,11 @@ static void print_logo_narrow(void) {
                 break;
         }
         for (uint8_t page = 0; page < 3; page++) {
-            oled_set_cursor(2, page);
+            oled_set_cursor(1, page + 1);
             oled_write_raw_P(icon[page], 24);
         }
-        render_big_text(7, label);
+        oled_set_cursor(1, 5);
+        oled_write(label, false);
     }
 
     /* bottom status bar: corne + wpm */
@@ -355,10 +299,12 @@ static void print_logo_narrow(void) {
     wpm_str[1] = '0' + (n /= 10) % 10;
     wpm_str[0] = '0' + n / 10;
 
-    oled_set_cursor(0, 3);
-    oled_write("corne         ", false);
+    oled_set_cursor(0, 11);
+    oled_write("corne", false);
+    oled_set_cursor(1, 13);
+    oled_write("WPM", false);
+    oled_set_cursor(1, 14);
     oled_write(wpm_str, false);
-    oled_write(" wpm", false);
 }
 
 static void print_status_narrow(void) {
@@ -421,11 +367,8 @@ static void print_status_narrow(void) {
     /* KEYBOARD PET RENDER END */
 }
 
-oled_rotation_t oled_init_user(oled_rotation_t rotation) { 
-    if (!is_keyboard_master()) {
-        return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
-    }
-    return OLED_ROTATION_270; 
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    return OLED_ROTATION_270;
 }
 
 bool oled_task_user(void) {
