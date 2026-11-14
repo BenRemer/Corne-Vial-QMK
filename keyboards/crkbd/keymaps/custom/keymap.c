@@ -286,18 +286,22 @@ static void print_logo_narrow(void) {
 
     /* bottom status bar: corne + wpm */
     uint8_t n = get_current_wpm();
-    char    wpm_str[4];
-    wpm_str[3] = '\0';
-    wpm_str[2] = '0' + n % 10;
-    wpm_str[1] = '0' + (n /= 10) % 10;
-    wpm_str[0] = '0' + n / 10;
+    static uint8_t last_wpm = 0xFF;
+    if (n != last_wpm) {
+        last_wpm = n;
+        char wpm_str[4];
+        wpm_str[3] = '\0';
+        wpm_str[2] = '0' + n % 10;
+        wpm_str[1] = '0' + (n /= 10) % 10;
+        wpm_str[0] = '0' + n / 10;
 
-    oled_set_cursor(1, 10);
-    oled_write("WPM", false);
-    oled_set_cursor(1, 11);
-    oled_write(wpm_str, false);
-    oled_set_cursor(0, 14);
-    oled_write("corne", false);
+        oled_set_cursor(1, 10);
+        oled_write("WPM", false);
+        oled_set_cursor(1, 11);
+        oled_write(wpm_str, false);
+        oled_set_cursor(0, 14);
+        oled_write("corne", false);
+    }
 }
 
 static void print_status_narrow(void) {
@@ -366,11 +370,15 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 
 bool oled_task_user(void) {
 #if OLED_TIMEOUT > 0
-    if (last_input_activity_elapsed() > OLED_TIMEOUT && last_led_activity_elapsed() > OLED_TIMEOUT) {
-        oled_off();
+    if (is_keyboard_master()) {
+        if (last_input_activity_elapsed() > OLED_TIMEOUT && last_led_activity_elapsed() > OLED_TIMEOUT) {
+            oled_off();
+            return false;
+        } else {
+            oled_on();
+        }
+    } else if (!is_oled_on()) {
         return false;
-    } else {
-        oled_on();
     }
 #endif
     /* KEYBOARD PET VARIABLES START */
