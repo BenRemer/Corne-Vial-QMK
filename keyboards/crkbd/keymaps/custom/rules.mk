@@ -1,5 +1,5 @@
 # qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap vial
-VIA_ENABLE          = no
+VIA_ENABLE          = yes
 VIAL_ENABLE         = yes
 LTO_ENABLE          = yes
 QMK_SETTINGS        = no
@@ -16,7 +16,8 @@ WPM_ENABLE          = yes
 
 MOUSEKEY_ENABLE 	= no     # Mouse keys
 EXTRAKEY_ENABLE     = no
-KEY_OVERRIDE_ENABLED = no
+VIAL_TAP_DANCE_ENABLE   = yes
+VIAL_KEY_OVERRIDE_ENABLE = yes
 AUDIO_ENABLE 		= no
 COMMAND_ENABLE 		= no
 LEADER_ENABLE 		= no

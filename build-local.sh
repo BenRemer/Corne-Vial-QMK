@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 # Clear out any firmware files
 rm --force *.hex
@@ -6,8 +7,8 @@ rm --force *.uf2
 
 # Ensure QMK CLI is installed
 if ! command -v qmk >/dev/null 2>&1; then
-    errcho "QMK CLI not found"
-    errcho "Install with pipx install qmk"
+    echo "QMK CLI not found" >&2
+    echo "Install with pipx install qmk" >&2
     exit 2
 fi
 
@@ -25,7 +26,7 @@ fi
 # Copy files to QMK repository
 if [ ! -L "vial-qmk/keyboards/crkbd/keymaps/custom" ]; then
     echo "Symlink keymaps in VIAL QMK repository"
-    ln --symbolic --force --no-dereference $(pwd)/custom vial-qmk/keyboards/crkbd/keymaps/
+    ln --symbolic --force --no-dereference "$(pwd)/keyboards/crkbd/keymaps/custom" vial-qmk/keyboards/crkbd/keymaps/
 fi
 
 # Build firmware
@@ -36,5 +37,4 @@ qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap custom
 cd ..
 
 # Copy firmware out of build directory
-cp vial-qmk/.build/*.hex .
 cp vial-qmk/.build/*.uf2 .

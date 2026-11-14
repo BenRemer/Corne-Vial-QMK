@@ -7,12 +7,12 @@ jobs:
     container: qmkfm/qmk_cli
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: main
 
     - name: Checkout Vial-QMK
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: vial-kb/vial-qmk
         submodules: recursive
@@ -20,7 +20,7 @@ jobs:
 
     - name: Copy keymaps to relevant directories
       run: |
-        cp --recursive main/keyboards vial-qmk/keyboards/
+        cp --recursive main/keyboards/. vial-qmk/keyboards/
 
     - name: Verify Vial UUID
       run: |
@@ -30,14 +30,10 @@ jobs:
     - name: Build crkbd firmware
       run: |
         cd vial-qmk
-        python3 -m pip install -r requirements.txt
         qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap custom
-        qmk compile -e MASTER=left --keyboard crkbd --keymap custom 
 
     - name: Save firmware files
       uses: actions/upload-artifact@v4
       with:
         name: firmware-files
-        path: |
-          ./vial-qmk/*.hex
-          ./vial-qmk/*.uf2
+        path: ./vial-qmk/*.uf2

@@ -1,5 +1,10 @@
 #include QMK_KEYBOARD_H
 
+#ifdef VIAL_ENABLE
+#    include "vial.h"
+#    include "dynamic_keymap.h"
+#endif
+
 enum layers {
     _QWERTY,
     _PROGRAM,
@@ -9,53 +14,84 @@ enum layers {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,  KC_BSPC,
+       KC_ESC,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P,   KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LCTL,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
+       KC_TAB,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_ESC,
+        TD(0),    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,   TD(5),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI, TL_LOWR,  KC_SPC,     KC_ENT, TL_UPPR, KC_RALT
+                                          KC_LCTL,   TD(6),  KC_SPC,     KC_ENT,   TO(1), KC_BSPC
                                       //`--------------------------'  `--------------------------'
-
   ),
 
   [_PROGRAM] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0, KC_BSPC,
+       KC_ESC, KC_LALT, LSFT(KC_5), LSFT(KC_6), LSFT(KC_BSLS), KC_MINS,           KC_GRV, LSFT(KC_1), LSFT(KC_7), LSFT(KC_4), KC_SCRL, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_LEFT, KC_DOWN,   KC_UP,KC_RIGHT, XXXXXXX, XXXXXXX,
+       KC_TAB,  KC_DOT, LSFT(KC_3), LSFT(KC_7), KC_BSLS,  KC_PSLS,               KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT,   KC_NO,   TD(2),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        TD(0), LSFT(KC_4), LSFT(KC_8), LSFT(KC_2), LCTL(KC_GRV), KC_EQL,         KC_LBRC, LSFT(KC_9), LSFT(KC_0), KC_RBRC, KC_NO, TD(3),
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
+                                            TD(4),   TO(0),  KC_SPC,     KC_ENT,   TO(2), KC_BSPC
                                       //`--------------------------'  `--------------------------'
   ),
 
   [_NUMBERS] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                      KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_BSPC,
+      QK_BOOT, KC_RGUI,   KC_NO, KC_MPRV, KC_MPLY, KC_MNXT,                    LSFT(KC_4),   KC_7,    KC_8,    KC_9, KC_MINS, KC_PSLS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_MINS,  KC_EQL, KC_LBRC, KC_RBRC, KC_BSLS,  KC_GRV,
+      RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI,   KC_NO, KC_VOLU,                       KC_DOT,    KC_4,    KC_5,    KC_6,  KC_EQL, LSFT(KC_8),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, KC_TILD,
+      RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD,   KC_NO, KC_VOLD,                         KC_0,    KC_1,    KC_2,    KC_3, KC_SLSH, KC_COMM,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                          KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
+                                          KC_LGUI,   TO(0),  KC_SPC,     KC_ENT,   TO(1), KC_BSPC
                                       //`--------------------------'  `--------------------------'
   )
-
-//   [3] = LAYOUT_split_3x6_3(
-//   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-//         QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-//   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-//       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-//   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-//       RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-//   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-//                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
-//                                       //`--------------------------'  `--------------------------'
-//   )
 };
+
+#ifdef VIAL_ENABLE
+void eeconfig_init_user(void) {
+#    ifdef VIAL_TAP_DANCE_ENABLE
+    static const vial_tap_dance_entry_t default_tap_dances[] = {
+        { .on_tap = OSM(MOD_LSFT), .on_hold = KC_NO,   .on_double_tap = KC_NO,         .on_tap_hold = KC_LSFT, .custom_tapping_term = 100 },
+        { .on_tap = OSM(MOD_LCTL), .on_hold = KC_LCTL, .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 180 },
+        { .on_tap = KC_PGUP,       .on_hold = KC_HOME, .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 100 },
+        { .on_tap = KC_PGDN,       .on_hold = KC_END,  .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 100 },
+        { .on_tap = KC_LGUI,       .on_hold = KC_LCTL, .on_double_tap = OSM(MOD_LGUI), .on_tap_hold = KC_NO,   .custom_tapping_term = 180 },
+        { .on_tap = OSM(MOD_RALT), .on_hold = KC_RALT, .on_double_tap = KC_CAPS,       .on_tap_hold = KC_NO,   .custom_tapping_term = 180 },
+        { .on_tap = KC_NO,         .on_hold = KC_LGUI, .on_double_tap = KC_NO,         .on_tap_hold = KC_NO,   .custom_tapping_term = 100 },
+    };
+    for (uint8_t i = 0; i < ARRAY_SIZE(default_tap_dances); i++) {
+        vial_tap_dance_entry_t td = default_tap_dances[i];
+        dynamic_keymap_set_tap_dance(i, &td);
+    }
+#    endif
+
+#    ifdef VIAL_KEY_OVERRIDE_ENABLE
+    static const vial_key_override_entry_t default_key_overrides[] = {
+        { .trigger = KC_1,    .replacement = KC_F1,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_2,    .replacement = KC_F2,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_3,    .replacement = KC_F3,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_4,    .replacement = KC_F4,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_5,    .replacement = KC_F5,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 7 },
+        { .trigger = KC_6,    .replacement = KC_F6,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_7,    .replacement = KC_F7,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_8,    .replacement = KC_F8,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_9,    .replacement = KC_F9,   .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_MINS, .replacement = KC_F10,  .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_EQL,  .replacement = KC_F11,  .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_SLSH, .replacement = KC_F12,  .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 135 },
+        { .trigger = KC_PSLS, .replacement = KC_PSCR, .layers = 0xFFFF, .trigger_mods = MOD_BIT(KC_RGUI), .negative_mod_mask = 0, .suppressed_mods = 0, .options = 7 },
+    };
+    for (uint8_t i = 0; i < ARRAY_SIZE(default_key_overrides); i++) {
+        vial_key_override_entry_t ko = default_key_overrides[i];
+        dynamic_keymap_set_key_override(i, &ko);
+    }
+#    endif
+
+    vial_init();
+}
+#endif
 
 #ifdef OLED_ENABLE
 #include <stdio.h>
@@ -202,29 +238,126 @@ static void render_luna(int LUNA_X, int LUNA_Y) {
 }
 /* KEYBOARD PET END */
 
-void render_logo(void) {
-    static const char PROGMEM crkbd_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94,
-        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4,
-        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4,
-        0};
-    oled_write_P(crkbd_logo, false);
+/* 24x24 layer icons (3 pages x 24 cols, LSB = top pixel) */
+static const char PROGMEM icon_base[3][24] = {
+    {0xf0, 0xf8, 0x0c, 0x06, 0x66, 0x66, 0x06, 0x66, 0x66, 0x06, 0x66, 0x66, 0x06, 0x66, 0x66, 0x06, 0x66, 0x66, 0x06, 0x66, 0x0c, 0xf8, 0xf0, 0x00},
+    {0xff, 0xff, 0x00, 0x00, 0x66, 0x66, 0x00, 0x66, 0x66, 0x00, 0x66, 0x66, 0x00, 0x66, 0x66, 0x00, 0x66, 0x66, 0x00, 0x66, 0x00, 0xff, 0xff, 0x00},
+    {0x0f, 0x1f, 0x30, 0x60, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x60, 0x30, 0x1f, 0x0f, 0x00},
+};
+
+static const char PROGMEM icon_prog[3][24] = {
+    {0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xfc, 0x0e, 0x06, 0x06, 0x00, 0x00, 0x00, 0x06, 0x06, 0x0e, 0xfc, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+    {0x00, 0x18, 0x3c, 0x7e, 0xe7, 0xc3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc3, 0xe7, 0x7e, 0x3c, 0x18, 0x00, 0x00},
+    {0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x3f, 0x70, 0x60, 0x60, 0x00, 0x00, 0x00, 0x60, 0x60, 0x70, 0x3f, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+};
+
+static const char PROGMEM icon_nums[3][24] = {
+    {0x00, 0x00, 0x00, 0xc0, 0xc0, 0xc0, 0xf8, 0xfc, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xf8, 0xfc, 0xc0, 0xc0, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00},
+    {0x00, 0x00, 0xc6, 0xc7, 0xc7, 0xc6, 0xff, 0xff, 0xc6, 0xc6, 0xc6, 0xc6, 0xc6, 0xc6, 0xff, 0xff, 0xc6, 0xc6, 0xc6, 0xc6, 0x00, 0x00, 0x00, 0x00},
+    {0x00, 0x00, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00},
+};
+
+static const uint8_t* get_big_glyph(char c) {
+    static const uint8_t glyphs[][5] = {
+        {0x7f, 0x49, 0x49, 0x49, 0x36}, // B
+        {0x7e, 0x11, 0x11, 0x11, 0x7e}, // A
+        {0x46, 0x49, 0x49, 0x49, 0x31}, // S
+        {0x7f, 0x49, 0x49, 0x49, 0x41}, // E
+        {0x7f, 0x09, 0x09, 0x09, 0x06}, // P
+        {0x7f, 0x09, 0x19, 0x29, 0x46}, // R
+        {0x3e, 0x41, 0x41, 0x41, 0x3e}, // O
+        {0x3e, 0x41, 0x49, 0x49, 0x7a}, // G
+        {0x7f, 0x04, 0x08, 0x10, 0x7f}, // N
+        {0x3f, 0x40, 0x40, 0x40, 0x3f}, // U
+        {0x7f, 0x02, 0x0c, 0x02, 0x7f}, // M
+        {0x02, 0x01, 0x51, 0x09, 0x06}, // ?
+    };
+    switch (c) {
+        case 'B': return glyphs[0];
+        case 'A': return glyphs[1];
+        case 'S': return glyphs[2];
+        case 'E': return glyphs[3];
+        case 'P': return glyphs[4];
+        case 'R': return glyphs[5];
+        case 'O': return glyphs[6];
+        case 'G': return glyphs[7];
+        case 'N': return glyphs[8];
+        case 'U': return glyphs[9];
+        case 'M': return glyphs[10];
+        default:  return glyphs[11];
+    }
+}
+
+static void render_big_text(uint8_t start_col, const char *text) {
+    for (uint8_t i = 0; text[i] != '\0'; i++) {
+        const uint8_t *glyph = get_big_glyph(text[i]);
+        char buf[3][18] = {{0}};
+        for (uint8_t gx = 0; gx < 5; gx++) {
+            uint32_t col_bits = 0;
+            for (uint8_t gy = 0; gy < 7; gy++) {
+                if (glyph[gx] & (1 << gy)) {
+                    col_bits |= (0x7UL << (gy * 3 + 1));
+                }
+            }
+            for (uint8_t sx = 0; sx < 3; sx++) {
+                uint8_t px = gx * 3 + sx;
+                buf[0][px] = (char)(col_bits & 0xFF);
+                buf[1][px] = (char)((col_bits >> 8) & 0xFF);
+                buf[2][px] = (char)((col_bits >> 16) & 0xFF);
+            }
+        }
+        uint8_t col = start_col + i * 3;
+        for (uint8_t page = 0; page < 3; page++) {
+            oled_set_cursor(col, page);
+            oled_write_raw(buf[page], 18);
+        }
+    }
 }
 
 static void print_logo_narrow(void) {
-    render_logo();
+    uint8_t layer = get_highest_layer(layer_state);
+    static uint8_t last_layer = 0xFF;
 
-    /* wpm counter */
+    if (layer != last_layer) {
+        last_layer = layer;
+        const char (*icon)[24] = icon_base;
+        const char *label = "BASE";
+        switch (layer) {
+            case _QWERTY:
+                icon  = icon_base;
+                label = "BASE";
+                break;
+            case _PROGRAM:
+                icon  = icon_prog;
+                label = "PROG";
+                break;
+            case _NUMBERS:
+                icon  = icon_nums;
+                label = "NUMS";
+                break;
+            default:
+                icon  = icon_base;
+                label = "????";
+                break;
+        }
+        for (uint8_t page = 0; page < 3; page++) {
+            oled_set_cursor(2, page);
+            oled_write_raw_P(icon[page], 24);
+        }
+        render_big_text(7, label);
+    }
+
+    /* bottom status bar: corne + wpm */
     uint8_t n = get_current_wpm();
     char    wpm_str[4];
-    oled_set_cursor(0, 14);
     wpm_str[3] = '\0';
     wpm_str[2] = '0' + n % 10;
     wpm_str[1] = '0' + (n /= 10) % 10;
-    wpm_str[0] = '0' + n / 10; 
-    oled_write(wpm_str, false);
+    wpm_str[0] = '0' + n / 10;
 
-    oled_set_cursor(0, 15);
+    oled_set_cursor(0, 3);
+    oled_write("corne         ", false);
+    oled_write(wpm_str, false);
     oled_write(" wpm", false);
 }
 
