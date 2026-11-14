@@ -11,6 +11,9 @@ enum layers {
     _NUMBERS,
 };
 
+#define LAYER_TIMEOUT_MS 30000UL
+static uint32_t layer_timeout_timer = 0;
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
@@ -384,10 +387,9 @@ bool oled_task_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//   if (record->event.pressed) {
-//     set_keylog(keycode, record);
-//   }
-//   return true;
+    if (record->event.pressed) {
+        layer_timeout_timer = timer_read32();
+    }
     switch (keycode) {
         /* KEYBOARD PET STATUS START */
         case KC_LCTL:
@@ -411,3 +413,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 #endif // OLED_ENABLE
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    if (get_highest_layer(state) != _QWERTY) {
+        layer_timeout_timer = timer_read32();
+    }
+    return state;
+}
+
+void matrix_scan_user(void) {
+    if (is_keyboard_master() &&
+        get_highest_layer(layer_state) != _QWERTY &&
+        timer_elapsed32(layer_timeout_timer) >= LAYER_TIMEOUT_MS) {
+        layer_clear();
+    }
+}
