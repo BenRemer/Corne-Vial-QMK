@@ -371,46 +371,94 @@ bool oled_task_user(void) {
     return false;
 }
 
-static uint8_t  ralt_td_count   = 0;
-static bool     ralt_td_pressed = false;
-static bool     ralt_td_held    = false;
-static uint32_t ralt_td_timer   = 0;
+typedef struct {
+    uint16_t keycode;
+    uint16_t on_tap;
+    uint16_t on_hold;
+    uint16_t on_double;
+    uint16_t tapping_term;
+} qmk_td_cfg_t;
+
+typedef struct {
+    uint8_t  count;
+    bool     pressed;
+    bool     held;
+    uint32_t timer;
+} qmk_td_state_t;
+
+static const qmk_td_cfg_t qmk_tds[] = {
+    { QK_TAP_DANCE + 2, KC_PGUP,       KC_HOME, KC_NO,         100 },
+    { QK_TAP_DANCE + 3, KC_PGDN,       KC_END,  KC_NO,         100 },
+    { QK_TAP_DANCE + 4, KC_LGUI,       KC_LCTL, OSM(MOD_LGUI), 180 },
+    { QK_TAP_DANCE + 5, OSM(MOD_RALT), KC_RALT, KC_CAPS,       180 },
+};
+static qmk_td_state_t qmk_td_states[ARRAY_SIZE(qmk_tds)];
+
+static void fire_td_action(uint16_t kc) {
+    if (kc >= QK_ONE_SHOT_MOD && kc <= QK_ONE_SHOT_MOD_MAX) {
+        add_oneshot_mods(kc & 0x1F);
+    } else if (kc != KC_NO) {
+        tap_code(kc);
+    }
+}
+
+static int8_t find_qmk_td(uint16_t keycode) {
+    for (uint8_t i = 0; i < ARRAY_SIZE(qmk_tds); i++) {
+        if (qmk_tds[i].keycode == keycode) {
+            return (int8_t)i;
+        }
+    }
+    return -1;
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         layer_timeout_timer = timer_read32();
     }
 
-    if (keycode == QK_TAP_DANCE + 5) {
+    int8_t td_idx = find_qmk_td(keycode);
+    if (td_idx >= 0) {
+        const qmk_td_cfg_t *cfg = &qmk_tds[td_idx];
+        qmk_td_state_t     *st  = &qmk_td_states[td_idx];
         if (record->event.pressed) {
-            ralt_td_pressed = true;
-            if (ralt_td_count == 0) {
-                ralt_td_count = 1;
-                ralt_td_timer = timer_read32();
+            st->pressed = true;
+            if (st->count == 0) {
+                st->count = 1;
+                st->timer = timer_read32();
             } else {
-                ralt_td_count = 0;
-                tap_code(KC_CAPS);
+                st->count = 0;
+                fire_td_action(cfg->on_double);
             }
         } else {
-            ralt_td_pressed = false;
-            if (ralt_td_held) {
-                unregister_code(KC_RALT);
-                ralt_td_held  = false;
-                ralt_td_count = 0;
-            } else if (ralt_td_count == 1) {
-                ralt_td_timer = timer_read32();
+            st->pressed = false;
+            if (st->held) {
+                unregister_code(cfg->on_hold);
+                st->held  = false;
+                st->count = 0;
+            } else if (st->count == 1) {
+                if (cfg->on_double == KC_NO) {
+                    st->count = 0;
+                    fire_td_action(cfg->on_tap);
+                } else {
+                    st->timer = timer_read32();
+                }
             }
         }
         return false;
     }
 
-    if (record->event.pressed && ralt_td_count == 1 && !ralt_td_held) {
-        if (ralt_td_pressed) {
-            register_code(KC_RALT);
-            ralt_td_held = true;
-        } else {
-            add_oneshot_mods(MOD_BIT(KC_RALT));
-            ralt_td_count = 0;
+    if (record->event.pressed) {
+        for (uint8_t i = 0; i < ARRAY_SIZE(qmk_tds); i++) {
+            qmk_td_state_t *st = &qmk_td_states[i];
+            if (st->count == 1 && !st->held) {
+                if (st->pressed) {
+                    register_code(qmk_tds[i].on_hold);
+                    st->held = true;
+                } else {
+                    fire_td_action(qmk_tds[i].on_tap);
+                    st->count = 0;
+                }
+            }
         }
     }
 
@@ -446,13 +494,17 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 void matrix_scan_user(void) {
-    if (ralt_td_count == 1 && !ralt_td_held) {
-        if (ralt_td_pressed && timer_elapsed32(ralt_td_timer) >= TAPPING_TERM) {
-            register_code(KC_RALT);
-            ralt_td_held = true;
-        } else if (!ralt_td_pressed && timer_elapsed32(ralt_td_timer) >= 200) {
-            add_oneshot_mods(MOD_BIT(KC_RALT));
-            ralt_td_count = 0;
+    for (uint8_t i = 0; i < ARRAY_SIZE(qmk_tds); i++) {
+        const qmk_td_cfg_t *cfg = &qmk_tds[i];
+        qmk_td_state_t     *st  = &qmk_td_states[i];
+        if (st->count == 1 && !st->held) {
+            if (st->pressed && timer_elapsed32(st->timer) >= cfg->tapping_term) {
+                register_code(cfg->on_hold);
+                st->held = true;
+            } else if (!st->pressed && cfg->on_double != KC_NO && timer_elapsed32(st->timer) >= 200) {
+                fire_td_action(cfg->on_tap);
+                st->count = 0;
+            }
         }
     }
     if (is_keyboard_master() &&
