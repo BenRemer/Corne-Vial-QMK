@@ -371,10 +371,49 @@ bool oled_task_user(void) {
     return false;
 }
 
+static uint8_t  ralt_td_count   = 0;
+static bool     ralt_td_pressed = false;
+static bool     ralt_td_held    = false;
+static uint32_t ralt_td_timer   = 0;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         layer_timeout_timer = timer_read32();
     }
+
+    if (keycode == QK_TAP_DANCE + 5) {
+        if (record->event.pressed) {
+            ralt_td_pressed = true;
+            if (ralt_td_count == 0) {
+                ralt_td_count = 1;
+                ralt_td_timer = timer_read32();
+            } else {
+                ralt_td_count = 0;
+                tap_code(KC_CAPS);
+            }
+        } else {
+            ralt_td_pressed = false;
+            if (ralt_td_held) {
+                unregister_code(KC_RALT);
+                ralt_td_held  = false;
+                ralt_td_count = 0;
+            } else if (ralt_td_count == 1) {
+                ralt_td_timer = timer_read32();
+            }
+        }
+        return false;
+    }
+
+    if (record->event.pressed && ralt_td_count == 1 && !ralt_td_held) {
+        if (ralt_td_pressed) {
+            register_code(KC_RALT);
+            ralt_td_held = true;
+        } else {
+            add_oneshot_mods(MOD_BIT(KC_RALT));
+            ralt_td_count = 0;
+        }
+    }
+
     switch (keycode) {
         /* KEYBOARD PET STATUS START */
         case KC_LCTL:
@@ -407,6 +446,15 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 void matrix_scan_user(void) {
+    if (ralt_td_count == 1 && !ralt_td_held) {
+        if (ralt_td_pressed && timer_elapsed32(ralt_td_timer) >= TAPPING_TERM) {
+            register_code(KC_RALT);
+            ralt_td_held = true;
+        } else if (!ralt_td_pressed && timer_elapsed32(ralt_td_timer) >= 200) {
+            add_oneshot_mods(MOD_BIT(KC_RALT));
+            ralt_td_count = 0;
+        }
+    }
     if (is_keyboard_master() &&
         get_highest_layer(layer_state) != _QWERTY &&
         timer_elapsed32(layer_timeout_timer) >= LAYER_TIMEOUT_MS) {
