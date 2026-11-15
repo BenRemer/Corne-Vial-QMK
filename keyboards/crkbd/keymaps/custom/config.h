@@ -6,6 +6,7 @@
 
 #define DYNAMIC_KEYMAP_LAYER_COUNT 3
 #define TAPPING_TERM 180
+#define TAP_CODE_DELAY 15
 
 //#define USE_MATRIX_I2C
 // #ifdef KEYBOARD_crkbd_rev1_legacy
