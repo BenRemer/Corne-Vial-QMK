@@ -267,9 +267,12 @@ static const char PROGMEM icon_nums[3][24] = {
     {0x00, 0x00, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x1f, 0x3f, 0x03, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
+/* Slave-side redraw cache; reset to 0xFF to force a full redraw */
+static uint8_t last_layer = 0xFF;
+static uint8_t last_wpm   = 0xFF;
+
 static void print_logo_narrow(void) {
     uint8_t layer = get_highest_layer(layer_state);
-    static uint8_t last_layer = 0xFF;
 
     if (layer != last_layer) {
         last_layer = layer;
@@ -303,7 +306,6 @@ static void print_logo_narrow(void) {
 
     /* bottom status bar: corne + wpm */
     uint8_t n = get_current_wpm();
-    static uint8_t last_wpm = 0xFF;
     if (n != last_wpm) {
         last_wpm = n;
         char wpm_str[4];
@@ -367,6 +369,17 @@ bool oled_task_user(void) {
         return false;
     }
 #endif
+    /* The slave half powers up with the OLED before the panel is ready, so the
+     * init commands (rotation/addressing) get dropped and the screen shows
+     * garbage in the wrong orientation. Re-run init once the panel is up. */
+    static bool slave_oled_reinit = false;
+    if (!slave_oled_reinit && !is_keyboard_master() && timer_read32() > 1500) {
+        slave_oled_reinit = true;
+        oled_init(OLED_ROTATION_0); // final rotation comes from oled_init_user
+        last_layer = 0xFF;
+        last_wpm   = 0xFF;
+    }
+
     /* KEYBOARD PET VARIABLES START */
     current_wpm   = get_current_wpm();
     led_usb_state = host_keyboard_led_state();
