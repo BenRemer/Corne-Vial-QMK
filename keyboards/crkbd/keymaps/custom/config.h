@@ -1,12 +1,26 @@
 #pragma once
 
-#define VIAL_KEYBOARD_UID {0x3B, 0x6B, 0xA0, 0x29, 0x80, 0x56, 0xED, 0xD1}
-#define VIAL_UNLOCK_COMBO_ROWS {0, 0}
-#define VIAL_UNLOCK_COMBO_COLS {0, 1}
-
-#define DYNAMIC_KEYMAP_LAYER_COUNT 3
 #define TAPPING_TERM 180
 #define TAP_CODE_DELAY 15
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION
+
+#ifdef RGBLIGHT_ENABLE
+#    undef RGBLIGHT_LED_COUNT
+#    define RGBLIGHT_LED_COUNT 54
+#    undef RGBLED_SPLIT
+#    define RGBLED_SPLIT { 27, 27 }
+#    define RGBLIGHT_LIMIT_VAL 120
+#    define RGBLIGHT_HUE_STEP  10
+#    define RGBLIGHT_SAT_STEP  17
+#    define RGBLIGHT_VAL_STEP  17
+#    define RGBLIGHT_EFFECT_BREATHING
+#    define RGBLIGHT_EFFECT_RAINBOW_MOOD
+#    define RGBLIGHT_EFFECT_RAINBOW_SWIRL
+#    define RGBLIGHT_EFFECT_STATIC_GRADIENT
+#    define RGBLIGHT_SLEEP
+#    define RGBLIGHT_LAYERS
+#endif
 
 //#define USE_MATRIX_I2C
 // #ifdef KEYBOARD_crkbd_rev1_legacy

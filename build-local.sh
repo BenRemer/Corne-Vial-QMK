@@ -33,8 +33,9 @@ fi
 echo "Building firmware..."
 cd vial-qmk
 qmk compile -e MASTER=left -e CONVERT_TO=kb2040 --keyboard crkbd --keymap custom
-# qmk compile -e MASTER=left --keyboard crkbd --keymap custom // too large
+qmk compile -e MASTER=left -e ALLOW_WARNINGS=yes --keyboard crkbd --keymap custom
 cd ..
 
 # Copy firmware out of build directory
+cp vial-qmk/.build/*.hex .
 cp vial-qmk/.build/*.uf2 .

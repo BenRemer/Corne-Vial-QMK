@@ -11,6 +11,13 @@ enum layers {
     _NUMBERS,
 };
 
+enum custom_keycodes {
+    TD_PGUP = SAFE_RANGE,
+    TD_PGDN,
+    TD_LGUI,
+    TD_RALT,
+};
+
 #define LAYER_TIMEOUT_MS 30000UL
 static uint32_t layer_timeout_timer = 0;
 
@@ -21,7 +28,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
        KC_TAB,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-  OSM(MOD_LSFT),    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,   TD(5),
+  OSM(MOD_LSFT),    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, TD_RALT,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LCTL, KC_LGUI, KC_SPC,     KC_ENT,   TO(1), KC_BSPC
                                       //`--------------------------'  `--------------------------'
@@ -31,11 +38,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
        KC_ESC, KC_LALT, LSFT(KC_5), LSFT(KC_6), LSFT(KC_BSLS), KC_MINS,           KC_GRV, LSFT(KC_1), LSFT(KC_7), LSFT(KC_4), KC_SCRL, KC_DEL,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-       KC_TAB,  KC_DOT, LSFT(KC_3), LSFT(KC_7), KC_BSLS,  KC_PSLS,               KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT,   KC_NO,   TD(2),
+       KC_TAB,  KC_DOT, LSFT(KC_3), LSFT(KC_7), KC_BSLS,  KC_PSLS,               KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT,   KC_NO, TD_PGUP,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-  OSM(MOD_LSFT), LSFT(KC_4), LSFT(KC_8), LSFT(KC_2), LCTL(KC_GRV), KC_EQL,         KC_LBRC, LSFT(KC_9), LSFT(KC_0), KC_RBRC, KC_NO, TD(3),
+  OSM(MOD_LSFT), LSFT(KC_4), LSFT(KC_8), LSFT(KC_2), LCTL(KC_GRV), KC_EQL,         KC_LBRC, LSFT(KC_9), LSFT(KC_0), KC_RBRC, KC_NO, TD_PGDN,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                            TD(4),   TO(0),  KC_SPC,     KC_ENT,   TO(2), KC_BSPC
+                                          TD_LGUI,   TO(0),  KC_SPC,     KC_ENT,   TO(2), KC_BSPC
                                       //`--------------------------'  `--------------------------'
   ),
 
@@ -387,12 +394,35 @@ typedef struct {
 } qmk_td_state_t;
 
 static const qmk_td_cfg_t qmk_tds[] = {
-    { QK_TAP_DANCE + 2, KC_PGUP,       KC_HOME, KC_NO,         100 },
-    { QK_TAP_DANCE + 3, KC_PGDN,       KC_END,  KC_NO,         100 },
-    { QK_TAP_DANCE + 4, KC_LGUI,       KC_LCTL, OSM(MOD_LGUI), 180 },
-    { QK_TAP_DANCE + 5, OSM(MOD_RALT), KC_RALT, KC_CAPS,       180 },
+    { TD_PGUP, KC_PGUP,       KC_HOME, KC_NO,         100 },
+    { TD_PGDN, KC_PGDN,       KC_END,  KC_NO,         100 },
+    { TD_LGUI, KC_LGUI,       KC_LCTL, OSM(MOD_LGUI), 180 },
+    { TD_RALT, OSM(MOD_RALT), KC_RALT, KC_CAPS,       180 },
 };
 static qmk_td_state_t qmk_td_states[ARRAY_SIZE(qmk_tds)];
+
+typedef struct {
+    uint16_t src;
+    uint16_t dst;
+} rgui_override_t;
+
+static const rgui_override_t rgui_overrides[] = {
+    { KC_1,    KC_F1   },
+    { KC_2,    KC_F2   },
+    { KC_3,    KC_F3   },
+    { KC_4,    KC_F4   },
+    { KC_5,    KC_F5   },
+    { KC_6,    KC_F6   },
+    { KC_7,    KC_F7   },
+    { KC_8,    KC_F8   },
+    { KC_9,    KC_F9   },
+    { KC_MINS, KC_F10  },
+    { KC_EQL,  KC_F11  },
+    { KC_SLSH, KC_F12  },
+    { KC_PSLS, KC_PSCR },
+};
+static uint16_t active_rgui_src = KC_NO;
+static uint16_t active_rgui_dst = KC_NO;
 
 static void fire_td_action(uint16_t kc) {
     if (kc >= QK_ONE_SHOT_MOD && kc <= QK_ONE_SHOT_MOD_MAX) {
@@ -462,6 +492,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    if (!record->event.pressed && keycode == active_rgui_src) {
+        unregister_code(active_rgui_dst);
+        active_rgui_src = KC_NO;
+        active_rgui_dst = KC_NO;
+        return false;
+    }
+    if (record->event.pressed && (get_mods() & MOD_BIT(KC_RGUI))) {
+        for (uint8_t i = 0; i < ARRAY_SIZE(rgui_overrides); i++) {
+            if (rgui_overrides[i].src == keycode) {
+                active_rgui_src = keycode;
+                active_rgui_dst = rgui_overrides[i].dst;
+                register_code(active_rgui_dst);
+                return false;
+            }
+        }
+    }
+
     switch (keycode) {
         /* KEYBOARD PET STATUS START */
         case KC_LCTL:
@@ -486,10 +533,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 #endif // OLED_ENABLE
 
+#ifdef RGBLIGHT_ENABLE
+const rgblight_segment_t PROGMEM prog_rgb_layer[] = RGBLIGHT_LAYER_SEGMENTS({0, 54, HSV_CYAN});
+const rgblight_segment_t PROGMEM nums_rgb_layer[] = RGBLIGHT_LAYER_SEGMENTS({0, 54, HSV_PURPLE});
+const rgblight_segment_t *const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(prog_rgb_layer, nums_rgb_layer);
+
+void keyboard_post_init_user(void) {
+    rgblight_layers = my_rgb_layers;
+}
+#endif
+
 layer_state_t layer_state_set_user(layer_state_t state) {
     if (get_highest_layer(state) != _QWERTY) {
         layer_timeout_timer = timer_read32();
     }
+#ifdef RGBLIGHT_ENABLE
+    rgblight_set_layer_state(0, layer_state_cmp(state, _PROGRAM));
+    rgblight_set_layer_state(1, layer_state_cmp(state, _NUMBERS));
+#endif
     return state;
 }
 
